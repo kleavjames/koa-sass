@@ -1,7 +1,18 @@
+const sassMiddleware = require('node-sass-middleware');
+
 module.exports = function (options) {
-  var mw = require('node-sass-middleware')(options);
-  return function *(next) {
-    yield mw.bind(mw, this.req, this.res);
-    yield next;
+  const sass = sassMiddleware(options);
+
+  return (ctx, next) => {
+    return new Promise((resolve, reject) => {
+      sass.call(sass, ctx.req, ctx.res, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(next());
+        }
+      });
+    });
   };
+  
 };
